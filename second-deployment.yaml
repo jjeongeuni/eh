@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: second
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: second
+  template:
+    metadata:
+      labels:
+        app: second
+    spec:
+      containers:
+      - name: second
+        image: jeongeunnii/second:latest
+        resources:
+          requests:
+            cpu: "125m"
+            memory: "128Mi"
+          limits:
+            cpu: "250m"
+            memory: "256Mi"
+        ports:
+        - containerPort: 8090
+        env:
+        - name: SPRING_DATASOURCE_URL
+          #value: "jdbc:mysql://mysql:3306/bookdb?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8" (clusterip일 때, 내부접근일 때)
+          value: "jdbc:mysql://49.50.133.116:30900/bookdb?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8"
+        - name: SPRING_DATASOURCE_USERNAME
+          value: "root"
+        - name: SPRING_DATASOURCE_PASSWORD
+          value: "rootpassword"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: second-service
+spec:
+  selector:
+    app: second
+  ports:
+  - protocol: TCP
+    port: 8090
+    targetPort: 8090
+    nodePort: 30901
+  type: NodePort
